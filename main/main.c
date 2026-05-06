@@ -15,8 +15,14 @@
 #include "driver/spi_common.h"
 #include "driver/sdspi_host.h"
 
-//bWBWly7lB9bPcNhY
 
+// ---------------- TODO ----------------
+//
+// 1. Normalize data output, get rid of noise if possible
+// 2. Try and figure out wireless data uploads
+// 3. Add sending data through USB (UART?) at data collection time (Not through SD)
+//
+// --------------------------------------
 
 // ---------------- PINS ----------------
 #define CONVST_PIN 0
@@ -83,11 +89,11 @@ void readADCs() {
 		data2 = (data2 << 8) | shiftInCustom(ADC_DATA_PIN2, ADC_DATA_CLK2);
 
     }
-
+	// Data is stored as a 64-bit value, separated into 4 16-bit fields for each ADC, we only care about the 1st and 3rd field, hence we mask with 0xFFFF
     dataBuffer.FL = (data1 & 0xFFFF);
-	dataBuffer.FR = (data1<<32 & 0xFFFF);
+	dataBuffer.FR = (data1>>32 & 0xFFFF);
 	dataBuffer.BL = (data2 & 0xFFFF);
-	dataBuffer.BR = (data2<<32 & 0xFFFF);
+	dataBuffer.BR = (data2>>32 & 0xFFFF);
 
     char line[128];
     snprintf(line, sizeof(line), "%llu,%.6f,%.6f,%.6f,%.6f\n",
